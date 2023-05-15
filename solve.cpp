@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <array>
+#include <cstdlib>
 #include <chrono>
 #include <fstream>
 #include <numeric>
@@ -12,22 +13,32 @@
 
 namespace nine_pieces
 {
-    static constexpr int SIZE = 3 * 3;
-    static constexpr int NUM_ORIENTATIONS = 4;
+    using Int = short;
 
-    using piece_t = std::array<int, 4>;
+    static constexpr Int SIZE = 3 * 3;
+    static constexpr Int NUM_ORIENTATIONS = 4;
+
+    using piece_t = std::array<Int, 4>;
     using puzzle_t = std::array<piece_t, SIZE>;
 
-    struct solution_t
+    struct piece_data
     {
-        int order;
-        int rot;
+        Int idx;
+        Int rot;
     };
 
     class puzzle
     {
         puzzle_t pieces_;
-        std::array<solution_t, 9> solution_;
+        std::array<piece_data, 9> solution_;
+
+        enum
+        {
+            TOP = 0,
+            RIGHT = 1,
+            BOTTOM = 2,
+            LEFT = 3
+        };
 
     public:
         explicit puzzle(puzzle_t const &pieces)
@@ -35,31 +46,36 @@ namespace nine_pieces
         {
         }
 
-        inline static bool will_fit(piece_t const &a, int rot_a, int side_a, piece_t const &b, int rot_b, int side_b)
+        inline static std::size_t normalized(int i, int size)
         {
-            const auto av = a.at(static_cast<std::size_t>((4 + side_a - rot_a) % 4));
-            const auto bv = b.at(static_cast<std::size_t>((4 + side_b - rot_b) % 4));
+            return static_cast<std::size_t>((size + i) % size);
+        }
+
+        inline static bool will_fit(piece_t const &a, Int rot_a, Int edge_a, piece_t const &b, Int rot_b, Int edge_b)
+        {
+            const auto av = a.at(normalized(edge_a - rot_a, 4));
+            const auto bv = b.at(normalized(edge_b - rot_b, 4));
             return (av + bv) == 0;
         }
 
-        std::array<solution_t, 9> const &solution() const
+        std::array<piece_data, SIZE> const &solution() const
         {
             return solution_;
         }
 
-        solution_t &solution(int k)
+        piece_data &solution(int k)
         {
             return solution_[k];
         }
 
-        int order(int i) const
+        Int idx(Int i) const
         {
-            return solution_.at(static_cast<std::size_t>((SIZE + i) % SIZE)).order;
+            return solution_.at(normalized(i, SIZE)).idx;
         }
 
-        int rot(int i) const
+        Int rot(Int i) const
         {
-            return solution_.at(static_cast<std::size_t>((SIZE + i) % SIZE)).rot;
+            return solution_.at(normalized(i, SIZE)).rot;
         }
 
         bool will_fit(int k, int current_piece_idx, int current_rotation) const
@@ -69,21 +85,22 @@ namespace nine_pieces
                 return true;
             }
             piece_t const &piece0 = pieces_.at(current_piece_idx);
-            piece_t const &piece1 = pieces_.at(order(k - 1));
-            static const std::array<int, SIZE> side_map = {1, 3, 0, 1, 1, 2, 2, 3, 3};
-            int side0 = side_map.at(k);
-            int side1 = (4 + side0 - 2) % 4;
-            bool fits = will_fit(piece0, current_rotation, side0, piece1, rot(k - 1), side1);
+            piece_t const &piece1 = pieces_.at(idx(k - 1)); // get previous piece
+            int rot1 = rot(k - 1);                          // get rotation of previous piece
+            static const std::array<Int, SIZE> Directions = {RIGHT, LEFT, TOP, RIGHT, RIGHT, BOTTOM, BOTTOM, LEFT, LEFT};
+            Int edge_a = Directions.at(k);
+            Int edge_b = (4 + edge_a - 2) % 4;
+            bool fits = will_fit(piece0, current_rotation, edge_a, piece1, rot1, edge_b);
             switch (k)
             {
             case 3:
-                return fits & will_fit(pieces_.at(current_piece_idx), current_rotation, 0, pieces_.at(order(0)), rot(0), 2);
+                return fits & will_fit(pieces_.at(current_piece_idx), current_rotation, TOP, pieces_.at(idx(0)), rot(0), BOTTOM);
             case 5:
-                return fits & will_fit(pieces_.at(current_piece_idx), current_rotation, 1, pieces_.at(order(0)), rot(0), 3);
+                return fits & will_fit(pieces_.at(current_piece_idx), current_rotation, RIGHT, pieces_.at(idx(0)), rot(0), LEFT);
             case 7:
-                return fits & will_fit(pieces_.at(current_piece_idx), current_rotation, 2, pieces_.at(order(0)), rot(0), 0);
+                return fits & will_fit(pieces_.at(current_piece_idx), current_rotation, BOTTOM, pieces_.at(idx(0)), rot(0), TOP);
             case 8:
-                return fits & will_fit(pieces_.at(current_piece_idx), current_rotation, 2, pieces_.at(order(1)), rot(1), 0);
+                return fits & will_fit(pieces_.at(current_piece_idx), current_rotation, BOTTOM, pieces_.at(idx(1)), rot(1), TOP);
             default:
                 break;
             }
@@ -94,8 +111,8 @@ namespace nine_pieces
     class solver
     {
         puzzle pieces_;
-        std::vector<std::array<solution_t, 9>> solutions_;
-        std::array<int, SIZE + 1> num_calls_at_level;
+        std::vector<std::array<piece_data, 9>> solutions_;
+        std::array<unsigned int, SIZE + 1> num_calls_at_level;
 
     public:
         solver(puzzle const &pieces)
@@ -103,7 +120,7 @@ namespace nine_pieces
         {
         }
 
-        void solve(int k, puzzle const &current_puzzle, std::vector<int> const &available_pieces)
+        void solve(Int k, puzzle const &current_puzzle, std::vector<Int> const &available_pieces)
         {
             ++num_calls_at_level[k];
             if (k == SIZE)
@@ -111,21 +128,21 @@ namespace nine_pieces
                 solutions_.push_back(current_puzzle.solution());
                 return;
             }
-            for (int idx = 0; idx < static_cast<int>(available_pieces.size()); ++idx)
+            for (Int idx = 0; idx < static_cast<Int>(available_pieces.size()); ++idx)
             {
-                int next_piece_idx = available_pieces[idx];
-                for (int rot = 0; rot < NUM_ORIENTATIONS; ++rot)
+                Int next_piece_idx = available_pieces[idx];
+                for (Int rot = 0; rot < NUM_ORIENTATIONS; ++rot)
                 {
                     if (current_puzzle.will_fit(k, next_piece_idx, rot))
                     {
                         puzzle next_puzzle{current_puzzle};
-                        next_puzzle.solution(k).order = next_piece_idx;
+                        next_puzzle.solution(k).idx = next_piece_idx;
                         next_puzzle.solution(k).rot = rot;
 #if 0
-                        std::vector<int> remaining_pieces{available_pieces};
+                        std::vector<Int> remaining_pieces{available_pieces};
                         remaining_pieces.erase(remaining_pieces.begin() + idx);
 #else
-                        std::vector<int> remaining_pieces(available_pieces.size() - 1);
+                        std::vector<Int> remaining_pieces(available_pieces.size() - 1);
                         std::remove_copy_if(available_pieces.cbegin(), available_pieces.cend(), remaining_pieces.begin(), [next_piece_idx](int i)
                                             { return i == next_piece_idx; });
 #endif
@@ -144,17 +161,17 @@ namespace nine_pieces
             return std::accumulate(num_calls_at_level.cbegin(), num_calls_at_level.cend(), 0);
         }
 
-        std::vector<std::array<solution_t, 9>> solutions() const
+        std::vector<std::array<piece_data, 9>> solutions() const
         {
             return solutions_;
         }
 
         void solve()
         {
-            std::vector<int> stack{0, 1, 2, 3, 4, 5, 6, 7, 8};
+            std::vector<Int> all_pieces{0, 1, 2, 3, 4, 5, 6, 7, 8};
             solutions_.clear();
             num_calls_at_level.fill(0);
-            solve(0, pieces_, stack);
+            solve(0, pieces_, all_pieces);
         }
     };
 
@@ -215,12 +232,12 @@ int main(int argc, char *argv[])
     {
         std::cout
             << "Solution " << (++num_solutions) << " (piece index | rotation):\n"
-            << s.at(6).order << ' ' << s.at(7).order << ' ' << s.at(8).order << " | "
-            << s.at(6).rot << ' ' << s.at(7).rot << ' ' << s.at(8).rot << '\n'
-            << s.at(5).order << ' ' << s.at(0).order << ' ' << s.at(1).order << " | "
-            << s.at(5).rot << ' ' << s.at(0).rot << ' ' << s.at(1).rot << '\n'
-            << s.at(4).order << ' ' << s.at(3).order << ' ' << s.at(2).order << " | "
-            << s.at(4).rot << ' ' << s.at(3).rot << ' ' << s.at(2).rot << "\n\n";
+            << (int)s.at(6).idx << ' ' << (int)s.at(7).idx << ' ' << (int)s.at(8).idx << " | "
+            << (int)s.at(6).rot << ' ' << (int)s.at(7).rot << ' ' << (int)s.at(8).rot << '\n'
+            << (int)s.at(5).idx << ' ' << (int)s.at(0).idx << ' ' << (int)s.at(1).idx << " | "
+            << (int)s.at(5).rot << ' ' << (int)s.at(0).rot << ' ' << (int)s.at(1).rot << '\n'
+            << (int)s.at(4).idx << ' ' << (int)s.at(3).idx << ' ' << (int)s.at(2).idx << " | "
+            << (int)s.at(4).rot << ' ' << (int)s.at(3).rot << ' ' << (int)s.at(2).rot << "\n\n";
     }
     std::cout << "Total tries: " << s.num_tries() << '\n';
     std::cout << dt.count() << " µs\n";
