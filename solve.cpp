@@ -24,56 +24,66 @@ namespace nine_pieces
         int rot;
     };
 
-    struct puzzle
+    class puzzle
     {
-        puzzle_t pieces;
-        std::array<solution_t, 9> solution;
+        puzzle_t pieces_;
+        std::array<solution_t, 9> solution_;
 
+    public:
         explicit puzzle(puzzle_t const &pieces)
-            : pieces(pieces)
+            : pieces_(pieces)
         {
         }
 
-        inline static bool is_fit(piece_t const &a, int rot_a, int side_a, piece_t const &b, int rot_b, int side_b)
+        inline static bool will_fit(piece_t const &a, int rot_a, int side_a, piece_t const &b, int rot_b, int side_b)
         {
             const auto av = a.at(static_cast<std::size_t>((4 + side_a - rot_a) % 4));
             const auto bv = b.at(static_cast<std::size_t>((4 + side_b - rot_b) % 4));
             return (av + bv) == 0;
         }
 
+        std::array<solution_t, 9> const &solution() const
+        {
+            return solution_;
+        }
+
+        solution_t &solution(int k)
+        {
+            return solution_[k];
+        }
+
         int order(int i) const
         {
-            return solution.at(static_cast<std::size_t>((SIZE + i) % SIZE)).order;
+            return solution_.at(static_cast<std::size_t>((SIZE + i) % SIZE)).order;
         }
 
         int rot(int i) const
         {
-            return solution.at(static_cast<std::size_t>((SIZE + i) % SIZE)).rot;
+            return solution_.at(static_cast<std::size_t>((SIZE + i) % SIZE)).rot;
         }
 
-        bool is_fit(int k, int used_k, int rot_k) const
+        bool will_fit(int k, int current_piece_idx, int current_rotation) const
         {
             if (k == 0)
             {
                 return true;
             }
-            auto const &piece_k = pieces.at(used_k);
-            auto const &piece_j = pieces.at(order(k - 1));
+            piece_t const &piece0 = pieces_.at(current_piece_idx);
+            piece_t const &piece1 = pieces_.at(order(k - 1));
             static const std::array<int, SIZE> side_map = {1, 3, 0, 1, 1, 2, 2, 3, 3};
-            static const std::array<int, SIZE> side_map_opposite = {3, 1, 2, 3, 3, 0, 0, 1, 1};
-            int side_k = side_map.at(k);
-            int side_j = side_map_opposite.at(k);
-            bool fits = is_fit(piece_k, rot_k, side_k, piece_j, rot(k - 1), side_j);
+            int side0 = side_map.at(k);
+            int side1 = (4 + side0 - 2) % 4;
+            bool fits = will_fit(piece0, current_rotation, side0, piece1, rot(k - 1), side1);
             switch (k)
             {
             case 3:
-                return fits & is_fit(pieces.at(used_k), rot_k, 0, pieces.at(order(0)), rot(0), 2);
+                return fits & will_fit(pieces_.at(current_piece_idx), current_rotation, 0, pieces_.at(order(0)), rot(0), 2);
             case 5:
-                return fits & is_fit(pieces.at(used_k), rot_k, 1, pieces.at(order(0)), rot(0), 3);
+                return fits & will_fit(pieces_.at(current_piece_idx), current_rotation, 1, pieces_.at(order(0)), rot(0), 3);
             case 7:
-                return fits & is_fit(pieces.at(used_k), rot_k, 2, pieces.at(order(0)), rot(0), 0);
+                return fits & will_fit(pieces_.at(current_piece_idx), current_rotation, 2, pieces_.at(order(0)), rot(0), 0);
             case 8:
-                return fits & is_fit(pieces.at(used_k), rot_k, 2, pieces.at(order(1)), rot(1), 0);
+                return fits & will_fit(pieces_.at(current_piece_idx), current_rotation, 2, pieces_.at(order(1)), rot(1), 0);
             default:
                 break;
             }
@@ -85,42 +95,41 @@ namespace nine_pieces
     {
         puzzle pieces_;
         std::vector<std::array<solution_t, 9>> solutions_;
-
-    public:
         std::array<int, SIZE + 1> num_calls_at_level;
 
+    public:
         solver(puzzle const &pieces)
             : pieces_(pieces)
         {
         }
 
-        void solve(int k, puzzle const &current_puzzle, std::vector<int> const &stack)
+        void solve(int k, puzzle const &current_puzzle, std::vector<int> const &available_pieces)
         {
             ++num_calls_at_level[k];
             if (k == SIZE)
             {
-                solutions_.push_back(current_puzzle.solution);
+                solutions_.push_back(current_puzzle.solution());
                 return;
             }
-            for (int idx = 0; idx < static_cast<int>(stack.size()); ++idx)
+            for (int idx = 0; idx < static_cast<int>(available_pieces.size()); ++idx)
             {
-                int next_piece_idx = stack[idx];
+                int next_piece_idx = available_pieces[idx];
                 for (int rot = 0; rot < NUM_ORIENTATIONS; ++rot)
                 {
-                    if (current_puzzle.is_fit(k, next_piece_idx, rot))
+                    if (current_puzzle.will_fit(k, next_piece_idx, rot))
                     {
                         puzzle next_puzzle{current_puzzle};
-                        next_puzzle.solution[k].order = next_piece_idx;
-                        next_puzzle.solution[k].rot = rot;
+                        next_puzzle.solution(k).order = next_piece_idx;
+                        next_puzzle.solution(k).rot = rot;
 #if 0
-                        std::vector<int> next_stack{stack};
-                        next_stack.erase(next_stack.begin() + idx);
+                        std::vector<int> remaining_pieces{available_pieces};
+                        remaining_pieces.erase(remaining_pieces.begin() + idx);
 #else
-                        std::vector<int> next_stack(stack.size() - 1);
-                        std::remove_copy_if(stack.begin(), stack.end(), next_stack.begin(), [next_piece_idx](int i)
+                        std::vector<int> remaining_pieces(available_pieces.size() - 1);
+                        std::remove_copy_if(available_pieces.cbegin(), available_pieces.cend(), remaining_pieces.begin(), [next_piece_idx](int i)
                                             { return i == next_piece_idx; });
 #endif
-                        solve(k + 1, next_puzzle, next_stack);
+                        solve(k + 1, next_puzzle, remaining_pieces);
                     }
                     if (k == 0)
                     {
@@ -143,6 +152,7 @@ namespace nine_pieces
         void solve()
         {
             std::vector<int> stack{0, 1, 2, 3, 4, 5, 6, 7, 8};
+            solutions_.clear();
             num_calls_at_level.fill(0);
             solve(0, pieces_, stack);
         }
@@ -163,6 +173,11 @@ int main(int argc, char *argv[])
         while (std::getline(fin, line))
         {
             auto const &pieces_str = util::split(line, ' ');
+            if (pieces_str.size() != 4)
+            {
+                std::cerr << "\u001b[31;1mERROR: each piece must have 4 sides.\n";
+                exit(1);
+            }
             nine_pieces::piece_t piece;
             std::transform(pieces_str.cbegin(), pieces_str.cend(), piece.begin(),
                 [](std::string const &value) -> int {
@@ -176,11 +191,16 @@ int main(int argc, char *argv[])
     }
     catch (::argparser::argument_required_exception e)
     {
-        std::cerr << "ERROR: " << e.what() << std::endl;
+        std::cerr << "ERROR: " << e.what() << '\n';
     }
-    if (piece_idx != 9)
+    if (piece_idx < 9)
     {
-        std::cerr << "ERROR: Invalid data." << std::endl;
+        std::cerr << "ERROR: Not enough pieces. Must be 9.\n";
+        exit(1);
+    }
+    if (piece_idx > 9)
+    {
+        std::cerr << "ERROR: Too many pieces. Must be 9.\n";
         exit(1);
     }
     namespace chrono = std::chrono;
