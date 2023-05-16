@@ -13,8 +13,9 @@ namespace nine_pieces
 
     static constexpr Int SIZE = 3 * 3;
     static constexpr Int NUM_ORIENTATIONS = 4;
+    static constexpr Int NUM_EDGES = 4;
 
-    using piece_t = std::array<Int, 4>;
+    using piece_t = std::array<Int, NUM_EDGES>;
     using puzzle_t = std::array<piece_t, SIZE>;
 
     struct placed_piece
@@ -96,7 +97,7 @@ namespace nine_pieces
             int rot1 = rot(k - 1);                          // get rotation of previous piece
             static const std::array<Int, SIZE> Directions = {RIGHT, LEFT, TOP, RIGHT, RIGHT, BOTTOM, BOTTOM, LEFT, LEFT};
             Int edge_a = Directions.at(k);
-            Int edge_b = (4 + edge_a - 2) % 4;
+            Int edge_b = (NUM_EDGES + edge_a - 2) % NUM_EDGES;
             bool fits = will_fit(
                 {piece0, rot0, edge_a},
                 {piece1, rot1, edge_b});
@@ -129,7 +130,7 @@ namespace nine_pieces
     {
         puzzle pieces_;
         std::vector<std::array<placed_piece, 9>> solutions_;
-        std::array<unsigned int, SIZE + 1> num_calls_at_level;
+        std::array<unsigned int, SIZE + 1> num_calls_at_level_;
 
     public:
         solver(puzzle const &pieces)
@@ -137,10 +138,10 @@ namespace nine_pieces
         {
         }
 
-        void solve(Int depth, puzzle const &current_puzzle, std::vector<Int> const &available_pieces)
+        void solve(Int k, puzzle const &current_puzzle, std::vector<Int> const &available_pieces)
         {
-            ++num_calls_at_level[depth];
-            if (depth == SIZE)
+            ++num_calls_at_level_[k];
+            if (k == SIZE)
             {
                 solutions_.push_back(current_puzzle.solution());
                 return;
@@ -150,12 +151,12 @@ namespace nine_pieces
                 Int next_piece_idx = available_pieces[idx];
                 for (Int rot = 0; rot < NUM_ORIENTATIONS; ++rot)
                 {
-                    if (current_puzzle.will_fit(depth, next_piece_idx, rot))
+                    if (current_puzzle.will_fit(k, next_piece_idx, rot))
                     {
                         puzzle next_puzzle{current_puzzle};
-                        next_puzzle.solution(depth).idx = next_piece_idx;
-                        next_puzzle.solution(depth).rot = rot;
-#if 0
+                        next_puzzle.solution(k).idx = next_piece_idx;
+                        next_puzzle.solution(k).rot = rot;
+#if 1
                         std::vector<Int> remaining_pieces{available_pieces};
                         remaining_pieces.erase(remaining_pieces.begin() + idx);
 #else
@@ -163,9 +164,9 @@ namespace nine_pieces
                         std::remove_copy_if(available_pieces.cbegin(), available_pieces.cend(), remaining_pieces.begin(), [next_piece_idx](int i)
                                             { return i == next_piece_idx; });
 #endif
-                        solve(depth + 1, next_puzzle, remaining_pieces);
+                        solve(k + 1, next_puzzle, remaining_pieces);
                     }
-                    if (depth == 0)
+                    if (k == 0)
                     {
                         break;
                     }
@@ -173,12 +174,12 @@ namespace nine_pieces
             }
         }
 
-        int total_tries() const
+        unsigned int total_tries() const
         {
-            return std::accumulate(num_calls_at_level.cbegin(), num_calls_at_level.cend(), 0);
+            return std::accumulate(num_calls_at_level_.cbegin(), num_calls_at_level_.cend(), 0);
         }
 
-        std::vector<std::array<placed_piece, 9>> solutions() const
+        std::vector<std::array<placed_piece, SIZE>> solutions() const
         {
             return solutions_;
         }
@@ -187,7 +188,7 @@ namespace nine_pieces
         {
             std::vector<Int> all_pieces{0, 1, 2, 3, 4, 5, 6, 7, 8};
             solutions_.clear();
-            num_calls_at_level.fill(0);
+            num_calls_at_level_.fill(0);
             solve(0, pieces_, all_pieces);
         }
     };
