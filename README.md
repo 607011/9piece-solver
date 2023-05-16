@@ -19,13 +19,20 @@ Amazingly, there are about 23 billion possible arrangements: 9·8·7·6·5·4·3
 
 One neat algorithm to solve this kind of puzzle is described in the 2001 paper [Using backtracking to solve the Scramble Squares puzzle](doc/backtrackingPaper.pdf) by Keith Brandt et al:
 
-- Place the first piece in the center.
-- Try to place the next piece to the right of the first, the following ones in a clockwise spiral around the center.
+- Place the first piece in the center. Its orientation doesn't matter.
+- Try to place the next piece to the right of the first, the following ones in a clockwise spiral around the center, like so:
+  ```
+  6 → 7 → 8
+  ↑
+  5   0 → 1
+  ↑       ↓
+  4 ← 3 ← 2
+  ```
 - For every piece test all of the four possible orientations.
 - If it fits the solver goes a level deeper and the process repeats with the remaining pieces until all pieces are placed.
 - If it doesn't fit the next available piece is chosen and the process continues on the same level.
 
-That's the algorithm the [solver](https://github.com/607011/9piece-solver/blob/main/src/solver.hpp) in this repository implements. It will find all solutions to a given puzzle. It's quite efficient: It takes only a couple of hundred tries to find a solution.
+That's the algorithm this [solver](https://github.com/607011/9piece-solver/blob/main/src/solver.hpp) implements. It will find all solutions to a given puzzle. It's quite efficient: It takes only a couple of hundred tries to find a solution.
 
 A puzzle is described in a file where each line represents one piece and the four integers in the line described the shape of an edge, e.g.
 
