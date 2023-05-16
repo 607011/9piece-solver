@@ -1,12 +1,8 @@
 #include <algorithm>
 #include <array>
 #include <cstdlib>
-#include <chrono>
-#include <fstream>
 #include <numeric>
-#include <stdexcept>
 #include <vector>
-#include <iostream>
 
 #include "util.hpp"
 
@@ -32,6 +28,7 @@ namespace nine_pieces
         piece_to_place() = delete;
         piece_to_place(piece_to_place const &) = delete;
         piece_to_place(piece_to_place &&) = delete;
+        piece_to_place &operator=(piece_to_place const &) = delete;
         piece_t const &piece;
         Int rot;
         Int edge;
