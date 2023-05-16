@@ -17,6 +17,9 @@ endif (MSVC)
 
 add_executable(9piece_solver 
   src/main.cpp
+  src/puzzle.cpp
+  src/solver.cpp
+  src/util.cpp
 )
 
 if (UNIX)
