@@ -44,12 +44,6 @@ int main(int argc, char *argv[])
             std::cerr << "\u001b[31;1mERROR: " << e.what() << "\u001b[0m\n";
             return EXIT_FAILURE;
         }
-        if (std::any_of(piece.begin(), piece.end(), [](int val) {
-            return val == 0;
-        })) {
-            std::cerr << "\u001b[31;1mERROR: Edge must not be 0 (line " << (piece_idx + 1) << ").\u001b[0m\n";
-            return EXIT_FAILURE;
-        }
         pieces[piece_idx++] = piece;
     }
     if (piece_idx < 9)
