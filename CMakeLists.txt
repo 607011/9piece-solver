@@ -7,7 +7,10 @@ if (UNIX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -pedantic")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
-endif (UNIX)
+	add_custom_command(TARGET 9piece_solver 
+	POST_BUILD
+	COMMAND strip 9piece_solver)
+  endif (UNIX)
 
 if (MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall ")
@@ -15,14 +18,9 @@ if (MSVC)
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} /O2")
 endif (MSVC)
 
-
 add_executable(9piece_solver 
   src/main.cpp
 )
-
-add_custom_command(TARGET 9piece_solver 
-  POST_BUILD
-  COMMAND strip 9piece_solver)
 
 install(TARGETS 9piece_solver
   CONFIGURATIONS Release
