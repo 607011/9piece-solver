@@ -34,7 +34,7 @@ One neat algorithm to solve this kind of puzzle is described in the 2001 paper [
 
 That's the algorithm this [solver](https://github.com/607011/9piece-solver/blob/main/src/solver.hpp) implements. It will find all solutions to a given puzzle. It's quite efficient: It takes only a couple of hundred tries to find a solution.
 
-A puzzle is described in a file where each line represents one piece and the four integers in the line described the shape of an edge, e.g.
+A puzzle is described in a file where each line represents one piece and the four integers in the line describe the shape of an edge, e.g.
 
 ```
  -4  1  2 -2 
