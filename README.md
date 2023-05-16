@@ -1,6 +1,13 @@
 # 9piece-solver
 
-**Solver for 3x3 puzzles, written in C++**
+**A Solver for 3x3 puzzles, written in C++**
+
+
+_Copyright ©️ 2023 [Oliver Lau](mailto:ola@ct.de), [Heise](https://www.heise.de/) Medien GmbH & Co. KG_
+
+---
+
+## Intro
 
 In puzzles like [Scramble Squares](https://www.scramblesquares.com/) or the One Tough Puzzle nine pieces have to be put together to form a 3 by 3 square. Each edge of a piece typically has one of four shapes or images. In case of shapes the positive shape fits the negative like in classical jigsaw puzzles, in case of images each image is split into two halves. Here are two examples:
 
@@ -36,7 +43,20 @@ A puzzle is described in a file where each line represents one piece and the fou
 
 To determine if two edges fit together the algorithm simple adds their values. If their sum is zero, the edges fit, otherwise they don't.
 
-_Copyright ©️ 2023 [Oliver Lau](mailto:ola@ct.de), [Heise](https://www.heise.de/) Medien GmbH & Co. KG_
+The output of the solver looks like this for every solution found:
+
+```
+--------------------------
+ indexes |     turns      
+---------+----------------
+  1 8 6  |  2/4  1/4  1/4 
+  4 7 3  |  3/4    0  2/4 
+  5 0 2  |  2/4  2/4  2/4 
+--------------------------
+```
+
+The left column shows the line numbers of the pieces in the original file. The right column shows how many counter-clockwise quarter turns are needed to fit the piece.
+
 
 
 ## Prerequisites
