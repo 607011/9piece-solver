@@ -29,6 +29,9 @@ namespace nine_pieces
 
     struct piece_to_place
     {
+        piece_to_place() = delete;
+        piece_to_place(piece_to_place const &) = delete;
+        piece_to_place(piece_to_place &&) = delete;
         piece_t const &piece;
         Int rot;
         Int edge;
