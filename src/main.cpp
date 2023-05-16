@@ -70,20 +70,20 @@ int main(int argc, char *argv[])
         std::cout
             << "Solution #" << (++num_solutions) << '\n'
             << "--------------------------\n"
-            << " indexes |   rotations    \n"
+            << " indexes |     turns      \n"
             << "---------+----------------\n"
             << "  " << (int)s.at(6).idx << ' ' << (int)s.at(7).idx << ' ' << (int)s.at(8).idx << "  | "
-            << std::setw(3) << (int)s.at(6).rot*90 << "° "
-            << std::setw(3) << (int)s.at(7).rot*90 << "° "
-            << std::setw(3) << (int)s.at(8).rot*90 << "°\n"
+            << " " << (s.at(6).rot != 0 ? ((std::to_string((int)s.at(6).rot)) + "/4 ") : "  0 ") 
+            << " " << (s.at(7).rot != 0 ? ((std::to_string((int)s.at(7).rot)) + "/4 ") : "  0 ")
+            << " " << (s.at(8).rot != 0 ? ((std::to_string((int)s.at(8).rot)) + "/4 ") : "  0 ") << "\n"
             << "  " << (int)s.at(5).idx << ' ' << (int)s.at(0).idx << ' ' << (int)s.at(1).idx << "  | "
-            << std::setw(3) << (int)s.at(5).rot*90<< "° "
-            << std::setw(3) << (int)s.at(0).rot*90 << "° "
-            << std::setw(3) << (int)s.at(1).rot*90 << "°\n"
+            << " " << (s.at(5).rot != 0 ? ((std::to_string((int)s.at(5).rot)) + "/4 ") : "  0 ") 
+            << " " << (s.at(0).rot != 0 ? ((std::to_string((int)s.at(0).rot)) + "/4 ") : "  0 ")
+            << " " << (s.at(1).rot != 0 ? ((std::to_string((int)s.at(1).rot)) + "/4 ") : "  0 ") << "\n"
             << "  " << (int)s.at(4).idx << ' ' << (int)s.at(3).idx << ' ' << (int)s.at(2).idx << "  | "
-            << std::setw(3) << (int)s.at(4).rot*90 << "° "
-            << std::setw(3) << (int)s.at(3).rot*90 << "° "
-            << std::setw(3) << (int)s.at(2).rot*90 << "°\n"
+            << " " << (s.at(4).rot != 0 ? ((std::to_string((int)s.at(4).rot)) + "/4 ") : "  0 ") 
+            << " " << (s.at(3).rot != 0 ? ((std::to_string((int)s.at(3).rot)) + "/4 ") : "  0 ")
+            << " " << (s.at(2).rot != 0 ? ((std::to_string((int)s.at(2).rot)) + "/4 ") : "  0 ") << "\n"
             << "--------------------------\n"
             << "\n";
     }
