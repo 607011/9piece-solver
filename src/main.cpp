@@ -73,21 +73,43 @@ int main(int argc, char *argv[])
     for (auto const &s : solver.solutions())
     {
         std::cout
-            << "Solution #" << (++num_solutions) << " (piece index | rotation):\n"
-            << (int)s.at(6).idx << ' ' << (int)s.at(7).idx << ' ' << (int)s.at(8).idx << " | "
-            << (int)s.at(6).rot << ' ' << (int)s.at(7).rot << ' ' << (int)s.at(8).rot << '\n'
-            << (int)s.at(5).idx << ' ' << (int)s.at(0).idx << ' ' << (int)s.at(1).idx << " | "
-            << (int)s.at(5).rot << ' ' << (int)s.at(0).rot << ' ' << (int)s.at(1).rot << '\n'
-            << (int)s.at(4).idx << ' ' << (int)s.at(3).idx << ' ' << (int)s.at(2).idx << " | "
-            << (int)s.at(4).rot << ' ' << (int)s.at(3).rot << ' ' << (int)s.at(2).rot << "\n\n";
+            << "Solution #" << (++num_solutions) << '\n'
+            << "--------------------------\n"
+            << " indexes |   rotations    \n"
+            << "---------+----------------\n"
+            << "  " << (int)s.at(6).idx << ' ' << (int)s.at(7).idx << ' ' << (int)s.at(8).idx << "  | "
+            << std::setw(3) << (int)s.at(6).rot*90 << "° "
+            << std::setw(3) << (int)s.at(7).rot*90 << "° "
+            << std::setw(3) << (int)s.at(8).rot*90 << "°\n"
+            << "  " << (int)s.at(5).idx << ' ' << (int)s.at(0).idx << ' ' << (int)s.at(1).idx << "  | "
+            << std::setw(3) << (int)s.at(5).rot*90<< "° "
+            << std::setw(3) << (int)s.at(0).rot*90 << "° "
+            << std::setw(3) << (int)s.at(1).rot*90 << "°\n"
+            << "  " << (int)s.at(4).idx << ' ' << (int)s.at(3).idx << ' ' << (int)s.at(2).idx << "  | "
+            << std::setw(3) << (int)s.at(4).rot*90 << "° "
+            << std::setw(3) << (int)s.at(3).rot*90 << "° "
+            << std::setw(3) << (int)s.at(2).rot*90 << "°\n"
+            << "--------------------------\n"
+            << "\n";
     }
-    std::cout << "Total tries: " << solver.total_tries() << '\n';
-    std::cout << dt.count()
+    if (!solver.solutions().empty())
+    {
+        std::cout
+            << "Total tries: " << solver.total_tries() << '\n'
+            << "At level:    " << util::join(solver.tries_at_level(), ' ') << '\n'
+            << '\n';
+        std::cout
+            << "Total calculation time: " << dt.count()
 #ifdef _MSC_VER
-        << " us"
+            << " us"
 #else
-        << " µs"
+            << " µs"
 #endif
-        << '\n';
+            << std::endl;
+    }
+    else
+    {
+        std::cout << "No solution found :-/\n";
+    }
     return EXIT_SUCCESS;
 }
