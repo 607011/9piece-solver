@@ -9,7 +9,7 @@ _Copyright ©️ 2023 [Oliver Lau](mailto:ola@ct.de), [Heise](https://www.heise.
 
 ## Intro
 
-In puzzles like [Scramble Squares](https://www.scramblesquares.com/) or the One Tough Puzzle nine pieces have to be put together to form a 3 by 3 square. Each edge of a piece typically has one of four shapes or images. In case of shapes the positive shape fits the negative like in classical jigsaw puzzles, in case of images each image is split into two halves. Here are two examples:
+In puzzles like [Scramble Squares](https://www.scramblesquares.com/) or One Tough Puzzle nine pieces have to be put together to form a 3 by 3 square. Each edge of a piece typically has one of four shapes or images. In case of shapes the positive shape fits the negative like in classical jigsaw puzzles, in case of images each image is split into two halves. Here are two examples:
 
 ![Jigsaw sample](doc/sample-pieces.png)
 
