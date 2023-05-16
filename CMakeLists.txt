@@ -7,10 +7,7 @@ if (UNIX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -pedantic")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
-	add_custom_command(TARGET 9piece_solver 
-	POST_BUILD
-	COMMAND strip 9piece_solver)
-  endif (UNIX)
+endif (UNIX)
 
 if (MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Wall /wd4365 /wd4710 /wd4711")
@@ -21,6 +18,13 @@ endif (MSVC)
 add_executable(9piece_solver 
   src/main.cpp
 )
+
+if (UNIX)
+	add_custom_command(TARGET 9piece_solver 
+	POST_BUILD
+	COMMAND strip 9piece_solver)
+endif (UNIX)
+
 
 install(TARGETS 9piece_solver
   CONFIGURATIONS Release
