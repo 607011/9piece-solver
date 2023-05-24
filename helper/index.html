@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="utf-8">
+        <title>9 Piece Creation Helper</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            html {
+                padding: 8px;
+                background-color: #222;
+            }
+            .tile {
+                border: 1px solid #444;
+                position: relative;
+            }
+            #helper {
+                display: grid;
+                grid-template-columns: 100px 100px 100px;
+                grid-template-rows: 100px 100px 100px;
+                padding: 25px;
+                position: absolute;
+            }
+            #helper input {
+                position: absolute;
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                text-align: center;
+                border: 1px solid #111;
+            }
+            .top {
+                top: 0px;
+                left: 40px;
+            }
+            .right {
+                right: 0px;
+                top: 40px;
+            }
+            .bottom {
+                bottom: 0px;
+                left: 40px;
+            }
+            .left {
+                top: 40px;
+                left: 0px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="helper">
+        </div>
+    </body>
+    <script>
+        const el = {};
+        function main() {
+            const Directions = ['top', 'right', 'bottom', 'left'];
+            el.helper = document.querySelector('#helper');
+            for (let i = 0; i < 9; ++i) {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                for (let j = 0; j < 4; ++j) {
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.value = '0';
+                    input.className = `t${Math.floor(i / 9)}${i % 9} ${Directions[j]}`;
+                    tile.append(input);
+                }
+                el.helper.append(tile);
+            }
+        }
+        window.addEventListener('load', main);
+    </script>
+</html>
