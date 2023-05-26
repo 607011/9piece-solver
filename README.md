@@ -20,7 +20,7 @@ Amazingly, there are about 23 billion possible arrangements: 9·8·7·6·5·4·3
 One neat algorithm to solve this kind of puzzle is described in the 2001 paper [Using backtracking to solve the Scramble Squares puzzle](doc/backtrackingPaper.pdf) by Keith Brandt et al:
 
 - Place the first piece in the center. Its orientation doesn't matter.
-- Try to place the next piece to the right of the first, the following ones in a clockwise spiral around the center, like so:
+- Try to place the next piece to the right of the first one, the following ones in a clockwise spiral around the center, like so:
   ```
   6 → 7 → 8
   ↑
