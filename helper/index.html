@@ -93,7 +93,7 @@
     const tiles = [];
 
     function solve() {
-        const pieces = [...tiles].map(tile => [...tile.children].map(edge => parseInt(edge.value)));
+        const pieces = tiles.map(tile => [...tile.children].map(edge => parseInt(edge.value)));
         const solver = new Solver(pieces);
         const t0 = performance.now();
         solver.solve();
