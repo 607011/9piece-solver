@@ -104,15 +104,17 @@
                 const result_container = document.createElement('div');
                 const ri = document.createElement('span');
                 ri.textContent = `indexes\n` +
-                    ` ${solution[6].idx} ${solution[7].idx} ${solution[8].idx}\n` +
-                    ` ${solution[5].idx} ${solution[0].idx} ${solution[1].idx}\n` +
-                    ` ${solution[4].idx} ${solution[3].idx} ${solution[2].idx}\n`;
+                    `-------\n` +
+                    `${solution[6].idx} ${solution[7].idx} ${solution[8].idx}\n` +
+                    `${solution[5].idx} ${solution[0].idx} ${solution[1].idx}\n` +
+                    `${solution[4].idx} ${solution[3].idx} ${solution[2].idx}\n`;
                 ri.className = 'result';
                 const rr = document.createElement('span');
                 rr.textContent = `¼ turns (ccw)\n` +
-                    ` ${solution[6].rot} ${solution[7].rot} ${solution[8].rot}\n` +
-                    ` ${solution[5].rot} ${solution[0].rot} ${solution[1].rot}\n` +
-                    ` ${solution[4].rot} ${solution[3].rot} ${solution[2].rot}\n`;
+                    `-------------\n` +
+                    `${solution[6].rot} ${solution[7].rot} ${solution[8].rot}\n` +
+                    `${solution[5].rot} ${solution[0].rot} ${solution[1].rot}\n` +
+                    `${solution[4].rot} ${solution[3].rot} ${solution[2].rot}\n`;
                 rr.className = 'result';
                 result_container.append(ri);
                 result_container.append(rr);
