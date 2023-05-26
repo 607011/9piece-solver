@@ -109,7 +109,7 @@
                     ` ${solution[4].idx} ${solution[3].idx} ${solution[2].idx}\n`;
                 ri.className = 'result';
                 const rr = document.createElement('span');
-                rr.textContent = `¼ turns\n` +
+                rr.textContent = `¼ turns (ccw)\n` +
                     ` ${solution[6].rot} ${solution[7].rot} ${solution[8].rot}\n` +
                     ` ${solution[5].rot} ${solution[0].rot} ${solution[1].rot}\n` +
                     ` ${solution[4].rot} ${solution[3].rot} ${solution[2].rot}\n`;
@@ -129,16 +129,14 @@
         const Directions = ['top', 'right', 'bottom', 'left'];
         el.helper = document.querySelector('#helper');
         el.results = document.querySelector('#results');
-        let pieces = [...DEFAULT_PIECES];
-        for (let i = 0; i < 9; ++i) {
+        for (const piece of DEFAULT_PIECES) {
             const tile = document.createElement('div');
             tile.className = 'tile';
             tiles.push(tile);
-            const edges = pieces.shift();
-            for (let j = 0; j < edges.length; ++j) {
+            for (let j = 0; j < piece.length; ++j) {
                 const input = document.createElement('input');
                 input.type = 'text';
-                input.value = edges[j];
+                input.value = piece[j];
                 input.className = `${Directions[j]}`;
                 input.addEventListener('change', solve);
                 tile.append(input);
