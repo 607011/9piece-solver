@@ -86,7 +86,7 @@ namespace nine_pieces
         }
 
         static std::size_t clamped(Int i, Int size);
-        static bool will_fit(piece_to_place const &a, piece_to_place const &b);
+        static bool will_edge_fit(piece_to_place const &a, piece_to_place const &b);
         std::array<placed_piece, SIZE> const &solution() const;
         placed_piece &solution(int k);
         void place_piece_at(int k, placed_piece const &piece);

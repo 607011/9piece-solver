@@ -7,7 +7,7 @@ namespace nine_pieces
         return static_cast<std::size_t>((size + i) % size);
     }
 
-    bool puzzle::will_fit(piece_to_place const &a, piece_to_place const &b)
+    bool puzzle::will_edge_fit(piece_to_place const &a, piece_to_place const &b)
     {
         Int av = a.piece.at(clamped(a.edge - a.rot, 4));
         Int bv = b.piece.at(clamped(b.edge - b.rot, 4));
@@ -48,28 +48,29 @@ namespace nine_pieces
         piece_t const &piece0 = pieces_.at(current_piece_idx);
         piece_t const &piece1 = pieces_.at(idx(k - 1)); // get previous piece
         Int rot1 = rot(k - 1);                          // get rotation of previous piece
-        static const std::array<Int, SIZE> Directions = {RIGHT, LEFT, TOP, RIGHT, RIGHT, BOTTOM, BOTTOM, LEFT, LEFT};
-        Int edge_a = Directions.at(k);
-        Int edge_b = (NUM_EDGES + edge_a - 2) % NUM_EDGES;
-        bool fits = will_fit(
-            {piece0, rot0, edge_a},
-            {piece1, rot1, edge_b});
+        static const std::array<Int, SIZE> Directions =
+            {RIGHT, LEFT, TOP, RIGHT, RIGHT, BOTTOM, BOTTOM, LEFT, LEFT};
+        Int edge0 = Directions.at(k);
+        Int edge1 = (NUM_EDGES + edge0 - 2) % NUM_EDGES;
+        bool fits = will_edge_fit(
+            {piece0, rot0, edge0},
+            {piece1, rot1, edge1});
         switch (k)
         {
         case 3:
-            return fits && will_fit(
+            return fits && will_edge_fit(
                                {pieces_.at(current_piece_idx), rot0, TOP},
                                {pieces_.at(idx(0)), rot(0), BOTTOM});
         case 5:
-            return fits && will_fit(
+            return fits && will_edge_fit(
                                {pieces_.at(current_piece_idx), rot0, RIGHT},
                                {pieces_.at(idx(0)), rot(0), LEFT});
         case 7:
-            return fits && will_fit(
+            return fits && will_edge_fit(
                                {pieces_.at(current_piece_idx), rot0, BOTTOM},
                                {pieces_.at(idx(0)), rot(0), TOP});
         case 8:
-            return fits && will_fit(
+            return fits && will_edge_fit(
                                {pieces_.at(current_piece_idx), rot0, BOTTOM},
                                {pieces_.at(idx(1)), rot(1), TOP});
         default:
