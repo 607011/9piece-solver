@@ -1,77 +1,153 @@
 <!DOCTYPE html>
 <html lang="de">
-    <head>
-        <meta charset="utf-8">
-        <title>9 Piece Creation Helper</title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
+
+<head>
+    <meta charset="utf-8">
+    <title>9 Piece Creation Helper</title>
+    <script async src="solver.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            padding: 8px;
+            background-color: #222;
+        }
+
+        .tile {
+            border: 1px solid #444;
+            position: relative;
+        }
+
+        #helper {
+            display: grid;
+            grid-template-columns: 100px 100px 100px;
+            grid-template-rows: 100px 100px 100px;
+            padding: 25px;
+            position: relative;
+        }
+
+        #helper input {
+            position: absolute;
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            text-align: center;
+            border: 1px solid #111;
+        }
+
+        .top {
+            top: 0px;
+            left: 40px;
+        }
+
+        .right {
+            right: 0px;
+            top: 40px;
+        }
+
+        .bottom {
+            bottom: 0px;
+            left: 40px;
+        }
+
+        .left {
+            top: 40px;
+            left: 0px;
+        }
+
+        .result {
+            white-space: pre;
+            display: inline-block;
+            color: #36d57e;
+            margin: 4px 20px 0 0;
+        }
+
+        #results {
+            color: #36d57e;
+            font-family: 'Courier New', Courier, monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="helper"></div>
+    <div id="results"></div>
+</body>
+<script>
+    const DEFAULT_PIECES = [
+        [-1, 3, 4, -3],
+        [-2, 1, 3, -3],
+        [-4, 3, 4, -1],
+        [-4, -1, 1, 4],
+        [-3, -1, 2, 1],
+        [-4, -2, 2, 1],
+        [-1, -2, 3, 3],
+        [-2, -4, 4, 2],
+        [-2, -2, 1, 4],
+    ];
+    const el = {};
+    const tiles = [];
+
+    function solve() {
+        const pieces = [...tiles].map(tile => [...tile.children].map(edge => parseInt(edge.value)));
+        const solver = new Solver(pieces);
+        const t0 = performance.now();
+        solver.solve();
+        console.log(`solver finished in ${performance.now() - t0} ms`);
+        const results = [];
+        if (solver.solutions.length > 0) {
+            for (let solution of solver.solutions) {
+                const result_container = document.createElement('div');
+                const ri = document.createElement('span');
+                ri.textContent = `indexes\n` +
+                    ` ${solution[6].idx} ${solution[7].idx} ${solution[8].idx}\n` +
+                    ` ${solution[5].idx} ${solution[0].idx} ${solution[1].idx}\n` +
+                    ` ${solution[4].idx} ${solution[3].idx} ${solution[2].idx}\n`;
+                ri.className = 'result';
+                const rr = document.createElement('span');
+                rr.textContent = `¼ turns\n` +
+                    ` ${solution[6].rot} ${solution[7].rot} ${solution[8].rot}\n` +
+                    ` ${solution[5].rot} ${solution[0].rot} ${solution[1].rot}\n` +
+                    ` ${solution[4].rot} ${solution[3].rot} ${solution[2].rot}\n`;
+                rr.className = 'result';
+                result_container.append(ri);
+                result_container.append(rr);
+                results.push(result_container);
             }
-            html {
-                padding: 8px;
-                background-color: #222;
-            }
-            .tile {
-                border: 1px solid #444;
-                position: relative;
-            }
-            #helper {
-                display: grid;
-                grid-template-columns: 100px 100px 100px;
-                grid-template-rows: 100px 100px 100px;
-                padding: 25px;
-                position: absolute;
-            }
-            #helper input {
-                position: absolute;
-                display: inline-block;
-                width: 20px;
-                height: 20px;
-                text-align: center;
-                border: 1px solid #111;
-            }
-            .top {
-                top: 0px;
-                left: 40px;
-            }
-            .right {
-                right: 0px;
-                top: 40px;
-            }
-            .bottom {
-                bottom: 0px;
-                left: 40px;
-            }
-            .left {
-                top: 40px;
-                left: 0px;
-            }
-        </style>
-    </head>
-    <body>
-        <div id="helper">
-        </div>
-    </body>
-    <script>
-        const el = {};
-        function main() {
-            const Directions = ['top', 'right', 'bottom', 'left'];
-            el.helper = document.querySelector('#helper');
-            for (let i = 0; i < 9; ++i) {
-                const tile = document.createElement('div');
-                tile.className = 'tile';
-                for (let j = 0; j < 4; ++j) {
-                    const input = document.createElement('input');
-                    input.type = 'text';
-                    input.value = '0';
-                    input.className = `t${Math.floor(i / 9)}${i % 9} ${Directions[j]}`;
-                    tile.append(input);
-                }
-                el.helper.append(tile);
+            el.results.replaceChildren(...results);
+        }
+        else {
+            el.results.textContent = 'no solutions :-(';
+        }
+    }
+
+    function main() {
+        const Directions = ['top', 'right', 'bottom', 'left'];
+        el.helper = document.querySelector('#helper');
+        el.results = document.querySelector('#results');
+        let pieces = [...DEFAULT_PIECES];
+        for (let i = 0; i < 9; ++i) {
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            tiles.push(tile);
+            const edges = pieces.shift();
+            for (let j = 0; j < edges.length; ++j) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = edges[j];
+                input.className = `${Directions[j]}`;
+                input.addEventListener('change', solve);
+                tile.append(input);
             }
         }
-        window.addEventListener('load', main);
-    </script>
+        el.helper.append(...tiles);
+        solve();
+    }
+    window.addEventListener('load', main);
+</script>
+
 </html>
