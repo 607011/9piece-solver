@@ -2,26 +2,16 @@
 
 namespace nine_pieces
 {
-    std::size_t puzzle::clamped(Int i, Int size)
-    {
-        return static_cast<std::size_t>((size + i) % size);
-    }
-
     bool puzzle::will_edge_fit(piece_to_place const &a, piece_to_place const &b)
     {
-        Int av = a.piece.at(clamped(a.edge - a.rot, 4));
-        Int bv = b.piece.at(clamped(b.edge - b.rot, 4));
+        Int av = a.piece.at((a.edge + a.rot) % 4);
+        Int bv = b.piece.at((b.edge + b.rot) % 4);
         return (av + bv) == 0;
     }
 
     std::array<placed_piece, SIZE> const &puzzle::solution() const
     {
         return solution_;
-    }
-
-    placed_piece &puzzle::solution(int k)
-    {
-        return solution_[k];
     }
 
     void puzzle::place_piece_at(int k, placed_piece const &piece)
@@ -31,12 +21,12 @@ namespace nine_pieces
 
     Int puzzle::idx(Int i) const
     {
-        return solution_.at(clamped(i, SIZE)).idx;
+        return solution_.at(i).idx;
     }
 
     Int puzzle::rot(Int i) const
     {
-        return solution_.at(clamped(i, SIZE)).rot;
+        return solution_.at(i).rot;
     }
 
     bool puzzle::will_fit(Int k, Int current_piece_idx, Int rot0) const
@@ -48,8 +38,8 @@ namespace nine_pieces
         piece_t const &piece0 = pieces_.at(current_piece_idx);
         piece_t const &piece1 = pieces_.at(idx(k - 1)); // get previous piece
         Int rot1 = rot(k - 1);                          // get rotation of previous piece
-        static const std::array<Int, SIZE> Directions =
-            {RIGHT, LEFT, TOP, RIGHT, RIGHT, BOTTOM, BOTTOM, LEFT, LEFT};
+        constexpr std::array<Int, SIZE> Directions{
+            RIGHT, LEFT, TOP, RIGHT, RIGHT, BOTTOM, BOTTOM, LEFT, LEFT};
         Int edge0 = Directions.at(k);
         Int edge1 = (NUM_EDGES + edge0 - 2) % NUM_EDGES;
         bool fits = will_edge_fit(
