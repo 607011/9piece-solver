@@ -1,3 +1,4 @@
+#include <cstddef>
 #include "util.hpp"
 
 namespace util
@@ -5,8 +6,8 @@ namespace util
     std::vector<std::string> split(const std::string &str, char delim)
     {
         std::vector<std::string> strings;
-        size_t start;
-        size_t end = 0;
+        std::size_t start;
+        std::size_t end = 0;
         while ((start = str.find_first_not_of(delim, end)) != std::string::npos)
         {
             end = str.find(delim, start);
